@@ -27,6 +27,7 @@ QList<fieldDef> mainID; //Main field ID
 int mainIDSize; //Main ID Size
 QSqlDatabase db; //SQLite Database
 int nerrors;
+QString version;
 
 int getTablePos(QString code)
 {
@@ -130,14 +131,21 @@ void readDAT(QString datSource, QString logFile)
 
         if (!line.trimmed().isEmpty())
         {
-            code = line[0];
+            if (version == "5")
+                code = line[0];
+            else
+                code = line.left(3);
+
             if (pCode != code)
             {
                 caseID = "";
                 pCode = code;
             }
 
-            line = line.right(line.length()-1); //Remove the record code
+            if (version == "5")
+                line = line.right(line.length()-1); //Remove the record code CSPro 5
+            else
+                line = line.right(line.length()-3); //Remove the record code CSPro 6
 
             line = line + " "; //Add an extra space at the end. Fix some errors in codes when line is almost empty
 
@@ -580,6 +588,7 @@ int main(int argc, char *argv[])
     TCLAP::ValueArg<std::string> datArg("d","inputDAT","Input DAT file",true,"","string");
     TCLAP::ValueArg<std::string> liteArg("s","sqliteDB","Output sqlite database. Default ./output.sqlite",false,"./output.sqlite","string");
     TCLAP::ValueArg<std::string> logArg("l","logFile","Output log file. Default ./output.csv",false,"./output.csv","string");
+    TCLAP::ValueArg<std::string> verArg("v","Version","CSPro version (5 or 6). Default 5",false,"5","string");
 
     TCLAP::SwitchArg overwrite("w","overwrite","Overwrite log file if exists", cmd, true);
 
@@ -588,6 +597,7 @@ int main(int argc, char *argv[])
     cmd.add(datArg);
     cmd.add(liteArg);
     cmd.add(logArg);
+    cmd.add(verArg);
     //Parsing the command lines
     cmd.parse( argc, argv );
 
@@ -598,7 +608,7 @@ int main(int argc, char *argv[])
     QString dat = QString::fromUtf8(datArg.getValue().c_str());
     QString lite = QString::fromUtf8(liteArg.getValue().c_str());
     QString log = QString::fromUtf8(logArg.getValue().c_str());
-
+    version = QString::fromUtf8(verArg.getValue().c_str());
 
     if (over) //If overwrite
     {
