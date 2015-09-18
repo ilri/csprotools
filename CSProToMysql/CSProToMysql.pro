@@ -16,4 +16,4 @@ CONFIG   -= app_bundle
 
 SOURCES += main.cpp
 
-unix:INCLUDEPATH += ../3rdparty
+INCLUDEPATH += ../3rdparty

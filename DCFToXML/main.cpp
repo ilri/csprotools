@@ -1,4 +1,3 @@
-#include <QtGui/QApplication>
 #include <tclap/CmdLine.h>
 #include <QtXml>
 #include <QFile>
@@ -268,7 +267,7 @@ int main(int argc, char *argv[])
     title = title + " * This tool is part of CSPro Tools (c) ILRI, 2012                * \n";
     title = title + " ****************************************************************** \n";
 
-    TCLAP::CmdLine cmd(title.toAscii().constData(), ' ', "1.0 (Beta 1)");
+    TCLAP::CmdLine cmd(title.toLatin1().constData(), ' ', "1.0 (Beta 1)");
     //Required arguments
     TCLAP::ValueArg<std::string> inputArg("i","input","Input CSPro DCF File",true,"","string");
     TCLAP::ValueArg<std::string> outputArg("o","output","Output XML file. Default ./output.xml",false,"./output.xml","string");

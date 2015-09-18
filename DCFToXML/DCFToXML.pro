@@ -13,6 +13,6 @@ TEMPLATE = app
 CONFIG   += console
 CONFIG   -= app_bundle
 
-unix:INCLUDEPATH += ../3rdparty
+INCLUDEPATH += ../3rdparty
 
 SOURCES += main.cpp

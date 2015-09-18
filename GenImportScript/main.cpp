@@ -368,7 +368,7 @@ int main(int argc, char *argv[])
     title = title + " * This tool is part of CSPro Tools (c) ILRI, 2012                * \n";
     title = title + " ****************************************************************** \n";
 
-    TCLAP::CmdLine cmd(title.toAscii().data(), ' ', "1.0 (Beta 1)");
+    TCLAP::CmdLine cmd(title.toLatin1().data(), ' ', "1.0 (Beta 1)");
     //Required arguments
     TCLAP::ValueArg<std::string> inputArg("x","input","Input CSPro XML File",true,"","string");
     TCLAP::ValueArg<std::string> outputArg("o","output","Output Python script File. Default ./output.py",false,"./output.py","string");
