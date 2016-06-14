@@ -258,16 +258,17 @@ int main(int argc, char *argv[])
 {
     QString title;
     title = title + "****************************************************************** \n";
-    title = title + " * DictToXML 1.0                                                  * \n";
+    title = title + " * DictToXML 2.0                                                  * \n";
     title = title + " * This tool generates an XML structure of a CSPro dictionary     * \n";
     title = title + " * file. The XML has the same data as the DCF file but using      * \n";
     title = title + " * XML tags. The purpose of an XML structure is to easily read    * \n";
     title = title + " * dictionary information or to quickly alter value lists.        * \n";
     title = title + " * The XMLToDict do the oposite.                                  * \n";
-    title = title + " * This tool is part of CSPro Tools (c) ILRI, 2012                * \n";
+    title = title + " * This tool is part of CSPro Tools (c) ILRI, 2016                * \n";
+    title = title + " * DictToXML is maintained by Carlos Quiros (cquiros@qlands.com)  * \n";
     title = title + " ****************************************************************** \n";
 
-    TCLAP::CmdLine cmd(title.toLatin1().constData(), ' ', "1.0 (Beta 1)");
+    TCLAP::CmdLine cmd(title.toLatin1().constData(), ' ', "2.0");
     //Required arguments
     TCLAP::ValueArg<std::string> inputArg("i","input","Input CSPro DCF File",true,"","string");
     TCLAP::ValueArg<std::string> outputArg("o","output","Output XML file. Default ./output.xml",false,"./output.xml","string");

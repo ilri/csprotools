@@ -1,22 +1,19 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2012-11-16T09:00:12
+# Project created by QtCreator 2012-11-14T14:37:11
 #
 #-------------------------------------------------
 
-QT       += core xml
+QT       += core xml sql
 
 QT       -= gui
 
-TARGET = genimportscript
+TARGET = csprodattojson
+TEMPLATE = app
+
 CONFIG   += console
 CONFIG   -= app_bundle
 
-TEMPLATE = app
-
-INCLUDEPATH += ../3rdparty
+unix:INCLUDEPATH += ../3rdparty
 
 SOURCES += main.cpp
-
-RESOURCES += \
-    files.qrc

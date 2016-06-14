@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>base.py</file>
-    </qresource>
-</RCC>

@@ -1,28 +1,28 @@
-# CSPro Tools
-CSPro Tools is a toolbox for processing [CSPro](https://www.census.gov/population/international/software/cspro/) survey data into MySQL databases. The toolbox relies on on [META](https://github.com/ilri/meta) for storing the dictionary information. CSPro Tools comprises of four command line tools performing different tasks. The toolbox is cross-platform and can be build in Windows, Linux and Mac. 
+# CSPro Tools 2.0
+CSPro Tools is a toolbox for processing [CSPro](https://www.census.gov/population/international/software/cspro/) survey data into MySQL databases. The toolbox relies on on [META](https://github.com/ilri/meta) for storing the dictionary information. CSPro Tools comprises of three command line tools performing different tasks. The toolbox is cross-platform and can be build in Windows, Linux and Mac.
 
 ## The toolbox
-- 
+-
 ###DCFToXML
 DCFToXML converts a CSPro dictionary file (DCF) into its representation as XML for better application usage.
 
  The tool produces the following output files:
- - output.xml. An XML representation of the CSPro dictionary file. **This file is used in subsequest tools.**
+ - output.xml. An XML representation of the CSPro dictionary file. **This file is used in subsequent tools.**
 
   #### *Parameters*
   - i - Input CSPro DCF file.
-  - o - Output XML file. 
-  
+  - o - Output XML file.
+
  ### *Example*
   ```sh
 $ ./dcftoxml -i my_input_dcf_file.dcf -o my_output_xml_file.xml
 ```
 
-- 
+-
 ###CSProToMySQL
-CSProToMySQL converts a CSPro Dictionary file (in XML format) into a relational MySQL schema. 
+CSProToMySQL converts a CSPro Dictionary file (in XML format) into a relational MySQL schema.
 
- CSProToMySQL creates a complete relational schemas with the following features:
+ CSProToMySQL creates a complete relational schema with the following features:
  - A record can be identified as the main table. The main table will be linked to the rest of tables.
  - Value lists are stored in lookup tables. Lookup tables are then related to main tables.
  - Records are converted to tables.
@@ -31,93 +31,62 @@ CSProToMySQL converts a CSPro Dictionary file (in XML format) into a relational 
  - Yes/No selects are ignored
 
  The tool produces the following output files:
- - create.sql. A [DDL](http://en.wikipedia.org/wiki/Data_definition_language) script containing all data structures, indexes and relationships.
- - insert.sql. A [DML](http://en.wikipedia.org/wiki/Data_manipulation_language) script that inserts all the value list values in the lookup tables.
- - uuid-triggers.sql. A script containing code for storing each row in each table with an [Universally unique identifier](http://en.wikipedia.org/wiki/Universally_unique_identifier) (UUID).
- - metadata.sql. A DML script that inserts the name of all tables and variables in META's dictionary tables.
+ - create.sql: A [DDL](http://en.wikipedia.org/wiki/Data_definition_language) script containing all data structures, indexes and relationships.
+ - insert.sql: A [DML](http://en.wikipedia.org/wiki/Data_manipulation_language) script that inserts all the select and multi-select values in the lookup tables.
+ - uuid-triggers.sql: A script containing code for storing each row in each table with an [Universally unique identifier](http://en.wikipedia.org/wiki/Universally_unique_identifier) (UUID).
+ - metadata.sql: A DML script that inserts the name of all tables and variables in META's dictionary tables.
+ - manifest.xml: This file maps each variable in the CSPro survey with its corresponding field in a table in the MySQL database. **This file is used in subsequent tools.**
+ - create.xml: This is a XML representation of the schema. Used by utilities compareCreateXML & createFromXML.
+ - insert.xml: This is a XML representation of the lookup tables and values. Used by utilities compareInsertXML & insertFromXML.
 
   #### *Parameters*
-  - x - Input CSPro XML file.
+  - x - Input CSPro XML file.  
   - t - Main record in CSPro, usually it contains the main survey variable. This will become the main table in the schema.
   - p - Table prefix. A prefix that can be added to each table. This is useful if a common schema is used to store different surveys.
   - c - Output DDL file. "create.sql" by default.
   - i - Output DML file. "insert.sql" by default.
   - u - Output UUID trigger file. "uuid-triggers.sql" by default.  
-  - m - Output metadata file. "metadata.sql" by default.
-  
+  - m - Output metadata file. "metadata.sql" by default.  
+  - f - Output manifest file. "manifest.xml" by default  
+  - I - Output lookup tables and values in XML format. "insert.xml" by default.
+  - C - Output schema as in XML format. "create.xml" by default
+
+
  ### *Example*
   ```sh
-$ ./csprotomysql -x my_input_xml_file.xml -t maintable
+$ ./csprotomysql -x my_input_csppro_xml_file.xml -t maintable
 ```
 
-- 
-###CSProDatToSQlite
-CSProDatToSQlite converts a CSPro data file (DAT) into a [SQLite](https://www.sqlite.org/) file. CSPro stores the data into a "flat" text file and is very complicated to control which records are imported or not into the database. To solve this the data is converted into SQLite which makes very easy to read and manipulate the data. Think about the SQlite file as a temporary repository for the CSPro data before it reach the MySQL database.
+-
+###CSProDatToJSON
+CSProDatToJSON converts a CSPro data file (DAT) into [JSON](https://en.wikipedia.org/wiki/JSON) files. CSPro stores the data into a "flat" text file and is very complicated to control which case are imported or not into the database. To solve this each case is exported to a different JSON file. JSON files are then imported with [JSONToMySQL](https://github.com/ilri/odktools)
 
- The tool produces the following output files:
- - output.sqlite. The same CSPro data but in SQLite format with some extra controlling fields.
+ In addition to JSON files the tool produces the following output file:
  - output.csv. A log file in CSV format with any errors encountered in the conversion. **These errors are mainly caused by using a dictionary file that does not match the data file.**
 
  #### *Parameters*
-  - x - Input CSPro XML file. 
-  - d - Input CSPro DAT file.
-  - s - Output SQLite data file. "output.sqlite" by default
-  - l - Output log file. "output.csv" by default
-  - w - Whether to overwrite the log file. False by default
-
- ### *Example*
-  ```sh
-$ ./csprodattosqlite -x my_input_xml_file.xml -d my_input_dat_file.dat -s my_output_sqlite_file.sqlite -l my_output_log_file.csv
-```
-
-- 
-###GenImportScript
-GenImportScript generates a Python scripts that imports the data from a CSPro SQLite data file into the MySQL database. Why a python script? With CSPro, we found that in some cases it is necessary to modify the way the data is imported into the database. For example, if a table should be imported before another one. A python script allow easy modifications of the import process without the need to compiling an application. 
-
- The tool produces the following output files:
- - import.py. The script that moves the data from SQLite to MySQL.
-
- #### *Parameters*
   - x - Input CSPro XML file.
-  - t - Main record in CSPro, usually it contains the main survey variable. This will become the main table in the database.
-  - p - Table prefix. A prefix that can be added to each table. This is useful if a common schema is used to store different tables.
-  - o - Output Python script file. "output.csv" by default
+  - d - Input CSPro DAT file.
+  - o - Output directory for the JSON files.
+  - l - Output log file. "output.csv" by default
+  - t - Main record in CSPro.
+  - v - Version of CSPro. The DAT files has changed from CSPro 5 to CSPro 6. You need to specify the version of CSPro used to **COLLECT** the data.
+  - w - Whether to overwrite the log file. False by default
+  - W - By default CSProDatToJSON does not overwrite a JSON file if it exists. Use this to change this behavior.
 
  ### *Example*
   ```sh
-$ ./genimportscript -x my_input_xml_file.xml -t maintable -o my_import_python_file
-```
-
-- 
-###Import Script (Generated Python file)
-The import script imports the data from a CSPro SQLite data file into the MySQL database. The scrip imports one table at a time. 
-
- The tool produces the following output files:
- - output.csv. A log file containing any errors in the importation process.
-
- #### *Parameters*
-  - h - MySQL host server. Default is localhost.
-  - u - User who has insert access to the schema.
-  - p - Password of the user.
-  - s - Target schema in the MySQL server.
-  - i - Input CSPro SQLite data file.
-  - t - Table to be imported.
-  - o - Output log file. "output.csv" by default.
-  - w - Overwrite log file. False by default.
-
- ### *Example*
-  ```sh
-$ python my_import_python_file -h localhost -u my_user -p my_password -s my_schema -t my_table_to_import -o my_log_file_.csv
+$ ./csprodattojson -x my_input_csppro_xml_file.xml -d my_input_date_file.dat -v 5 -o /where/to/save/the/jsons -t my_main_record
 ```
 
 ## Technology
-ODK Tools was built using:
+CSPro Tools was built using:
 
 - [C++](https://isocpp.org/), a general-purpose programming language.
-- [Qt 4.8.x](https://www.qt.io/), a cross-platform application framework.
-- [Python 2.7.x](https://www.python.org/), a widely used general-purpose programming language.
-- [MySQLdb](http://mysql-python.sourceforge.net/MySQLdb.html), a thread-compatible interface to the popular MySQL database server that provides the Python database API. Install it with [pip](https://pip.pypa.io/en/stable/) "pip install MySQL-python"
+- [Qt 5.6.x](https://www.qt.io/), a cross-platform application framework.
 - [TClap](http://tclap.sourceforge.net/), a small, flexible library that provides a simple interface for defining and accessing command line arguments.
+- [QJSON](https://github.com/flavio/qjson), a qt-based library that maps JSON data to QVariant objects. *(Included in source code)*
+- [CMake](http://www.cmake.org/), a cross-platform free and open-source software for managing the build process of software using a compiler-independent method.
 
 
 ## Building and testing
@@ -125,6 +94,14 @@ To build this site for local viewing or development:
 
     $ git clone https://github.com/ilri/csprotools.git
     $ cd csprotools
+    $ git submodule update --init --recursive
+    $ cd 3rdparty/qjson
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ make
+    $ sudo make install
+    $ cd ../../..
     $ qmake
     $ make
 
@@ -135,6 +112,6 @@ Carlos Quiros (c.f.quiros_at_cgiar.org / cquiros_at_qlands.com)
 This repository contains the code of:
 
 - [TClap](http://tclap.sourceforge.net/) which is licensed under the [MIT license](https://raw.githubusercontent.com/twbs/bootstrap/master/LICENSE).
+- [QJSON](https://github.com/flavio/qjson) which is licensed under the [GNU Lesser General Public License version 2.1](http://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
-Otherwise, the contents of this application is [GPL V3](http://www.gnu.org/copyleft/gpl.html). 
- 
+Otherwise, the contents of this application is [LGPL V3](https://www.gnu.org/licenses/lgpl-3.0.en.html).
