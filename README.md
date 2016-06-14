@@ -1,9 +1,13 @@
 # CSPro Tools 2.0
 CSPro Tools is a toolbox for processing [CSPro](https://www.census.gov/population/international/software/cspro/) survey data into MySQL databases. The toolbox relies on on [META](https://github.com/ilri/meta) for storing the dictionary information. CSPro Tools comprises of three command line tools performing different tasks. The toolbox is cross-platform and can be build in Windows, Linux and Mac.
 
+This version differs from version 1 in the following:
+ - JSON files are used to import the data into MySQL. Instead of using SQLite
+ - The data is imported using JSONToMySQL (from ODKTools). Instead of using a generated python script.
+
 ## The toolbox
--
-###DCFToXML
+
+### DCFToXML
 DCFToXML converts a CSPro dictionary file (DCF) into its representation as XML for better application usage.
 
  The tool produces the following output files:
@@ -18,8 +22,8 @@ DCFToXML converts a CSPro dictionary file (DCF) into its representation as XML f
 $ ./dcftoxml -i my_input_dcf_file.dcf -o my_output_xml_file.xml
 ```
 
--
-###CSProToMySQL
+
+### CSProToMySQL
 CSProToMySQL converts a CSPro Dictionary file (in XML format) into a relational MySQL schema.
 
  CSProToMySQL creates a complete relational schema with the following features:
@@ -57,8 +61,7 @@ CSProToMySQL converts a CSPro Dictionary file (in XML format) into a relational 
 $ ./csprotomysql -x my_input_csppro_xml_file.xml -t maintable
 ```
 
--
-###CSProDatToJSON
+### CSProDatToJSON
 CSProDatToJSON converts a CSPro data file (DAT) into [JSON](https://en.wikipedia.org/wiki/JSON) files. CSPro stores the data into a "flat" text file and is very complicated to control which case are imported or not into the database. To solve this each case is exported to a different JSON file. JSON files are then imported with [JSONToMySQL](https://github.com/ilri/odktools)
 
  In addition to JSON files the tool produces the following output file:
