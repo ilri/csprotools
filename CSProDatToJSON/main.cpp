@@ -3,10 +3,10 @@
 #include <QFile>
 #include <QDir>
 #include <QtSql>
-#include <qjsondocument.h>
-#include <qjsonobject.h>
-#include <qjsonarray.h>
-#include <qcryptographichash.h>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QCryptographicHash>
 
 struct fieldDef
 {
