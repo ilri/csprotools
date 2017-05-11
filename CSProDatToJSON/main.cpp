@@ -8,6 +8,8 @@
 #include <QJsonArray>
 #include <QCryptographicHash>
 
+int RecordTypeLen;
+
 struct fieldDef
 {
   QString name; //Field name
@@ -50,7 +52,7 @@ QList<fieldDef> mainID; //Main field ID
 QList<TcaseDef> cases; //List of cases in the DAT
 int mainIDSize; //Main ID Size
 int nerrors;
-QString version;
+
 bool overWriteJSON;
 
 void logout(QString message)
@@ -422,16 +424,16 @@ int readDAT(QString datSource, QString logFile, QDir outdir)
 
         if (!line.trimmed().isEmpty())
         {
-            if (version == "5")
+            if (RecordTypeLen == 1)
                 code = line[0];
             else
-                code = line.left(3);
+                code = line.left(RecordTypeLen);
 
 
-            if (version == "5")
+            if (RecordTypeLen == 1)
                 line = line.right(line.length()-1); //Remove the record code CSPro 5
             else
-                line = line.right(line.length()-3); //Remove the record code CSPro 6
+                line = line.right(line.length()-RecordTypeLen); //Remove the record code CSPro 6
 
             line = line + " "; //Add an extra space at the end. Fix some errors in codes when line is almost empty
 
@@ -612,6 +614,12 @@ int readXML(QString xmlSource, QString mainTable)
     QDomElement item; //The item xml tag
     QDomElement record; //The record xml tag
 
+    list = doc.elementsByTagName("RecordTypeLen");
+    if (list.count() > 0)
+        RecordTypeLen = list.item(0).firstChild().nodeValue().toInt();
+    else
+         RecordTypeLen = 1;
+
     int pos;
     mainIDSize = 0;
     //This section of code extract the main item of the survey
@@ -737,7 +745,6 @@ int main(int argc, char *argv[])
     TCLAP::ValueArg<std::string> outArg("o","outputDir","Output directory for the JSON files",true,"","string");
     TCLAP::ValueArg<std::string> logArg("l","logFile","Output error log file. Default ./error.csv",false,"./output.csv","string");
     TCLAP::ValueArg<std::string> tableArg("t","mainTable","Main record of the CSPro file",true,"","string");
-    TCLAP::ValueArg<std::string> verArg("v","Version","CSPro version (5 for CSPro <= 5 or 6 for CSPro >=6).",true,"","string");
     TCLAP::SwitchArg overwritelog("w","overwritelog","Overwrite log file if exists", cmd, true);
     TCLAP::SwitchArg overwritejson("W","overwritejson","Overwrite JSON file if exists", cmd, false);
 
@@ -746,7 +753,6 @@ int main(int argc, char *argv[])
     cmd.add(datArg);
     cmd.add(outArg);
     cmd.add(logArg);
-    cmd.add(verArg);
     cmd.add(tableArg);
     //Parsing the command lines
     cmd.parse( argc, argv );
@@ -760,7 +766,7 @@ int main(int argc, char *argv[])
     QString outdir = QString::fromUtf8(outArg.getValue().c_str());
     QString mainTable = QString::fromUtf8(tableArg.getValue().c_str());
     QString log = QString::fromUtf8(logArg.getValue().c_str());
-    version = QString::fromUtf8(verArg.getValue().c_str());
+
 
     QDir dir(outdir);
     if (!dir.exists())
@@ -792,7 +798,7 @@ int main(int argc, char *argv[])
     else
     {
         logout("Done. No errors were encountered");
-        return 1;
+        return 0;
     }
 
     return 0;

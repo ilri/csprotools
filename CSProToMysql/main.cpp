@@ -164,7 +164,11 @@ QList<TfieldDef> getFields(QDomNode node, bool supress) //Return a list of Field
 {
     QList<TfieldDef> res;
     QDomNodeList list;
+    QDomNodeList list2;
+    QDomNodeList list3;
+    QDomNodeList list4;
     QDomElement item;
+    QDomElement item2;
     QDomNode VSVNode;
     //int pos;
     QString VLName;
@@ -224,6 +228,7 @@ QList<TfieldDef> getFields(QDomNode node, bool supress) //Return a list of Field
         }
 
         list = item.elementsByTagName("ValueSet");
+        list4 = item.elementsByTagName("ValueSet");
         if (list.count() > 0)
         {
             TtableDef table;
@@ -273,41 +278,75 @@ QList<TfieldDef> getFields(QDomNode node, bool supress) //Return a list of Field
             //lkpdesc.join = false;
             table.fields.append(lkpdesc);
 
-            list = item.elementsByTagName("ValueSetValues");
-            if (list.count() > 0)
+            for (int vsets = 0;vsets < list4.count(); vsets++)
             {
-                VSVNode = list.item(0).firstChild();
-                while (!VSVNode.isNull())
+                item2 = list4.item(vsets).toElement();
+                list2 = item2.elementsByTagName("ValueSetValues");
+                if (list2.count() > 0)
                 {
+                    VSVNode = list2.item(0).firstChild();
+                    while (!VSVNode.isNull())
+                    {
 
-                    VSData = VSVNode.firstChild().nodeValue().split("|",QString::SkipEmptyParts);
-                    TlkpValue VSValue;
-                    VSValue.code = VSData[0].replace("'","").simplified();
-                    if (VSData.count() > 1)
-                        VSValue.desc = VSData[1].replace("'","").simplified();
-                    else
-                        VSValue.desc = "Value without description";
-                    table.lkpValues.append(VSValue);
+                        if (VSVNode.firstChild().nodeValue().contains("|"))
+                        {
+                            VSData = VSVNode.firstChild().nodeValue().split("|",QString::SkipEmptyParts);
+                            TlkpValue VSValue;
+                            VSValue.code = VSData[0].replace("'","").simplified();
+                            if (VSData.count() > 1)
+                                VSValue.desc = VSData[1].replace("'","").simplified();
+                            else
+                                VSValue.desc = "Value without description";
+                            table.lkpValues.append(VSValue);
+                        }
+                        else
+                        {
+                            if (VSVNode.firstChild().nodeValue().contains(":"))
+                            {
+                                VSData = VSVNode.firstChild().nodeValue().split(":",QString::SkipEmptyParts);
 
 
-                    VSVNode = VSVNode.nextSibling();
+
+                                int vstart;
+                                int vend;
+                                vstart = VSData[0].toInt();
+                                vend = VSData[1].toInt();
+                                if (vend > 99)
+                                {
+                                    qDebug() << "Raged value for table " + table.name + " is " + QString::number(vend) + ". Setting max to 99";
+                                    vend = 99;
+                                }
+                                for (int range = vstart; range <= vend; range++)
+                                {
+                                    TlkpValue VSValue;
+                                    VSValue.code = QString::number(range);
+                                    VSValue.desc = "Range value " + VSValue.code;
+                                    table.lkpValues.append(VSValue);
+                                }
+                            }
+                        }
+
+
+                        VSVNode = VSVNode.nextSibling();
+                    }
+                    list3 = item2.elementsByTagName("Link");
+                    if (list3.count() > 0)
+                    {
+                        table.link = list3.item(0).firstChild().nodeValue();
+                    }
+
                 }
-                list = item.elementsByTagName("Link");
-                if (list.count() > 0)
+                else
                 {
-                    table.link = list.item(0).firstChild().nodeValue();                    
+                    list3 = item2.elementsByTagName("Link");
+                    if (list3.count() > 0)
+                    {
+                        tableLink = list3.item(0).firstChild().nodeValue();
+                        table.lkpValues.append(getLkpValuesFromLink(tableLink));
+                    }
                 }
-
             }
-            else
-            {                
-                list = item.elementsByTagName("Link");
-                if (list.count() > 0)
-                {
-                    tableLink = list.item(0).firstChild().nodeValue();
-                    table.lkpValues.append(getLkpValuesFromLink(tableLink));                    
-                }
-            }
+
 
 
             if (supress == false)
